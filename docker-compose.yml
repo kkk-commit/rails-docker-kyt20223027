@@ -1,0 +1,29 @@
+version: '3'
+volumes:
+  db-volume:
+# 2つのサービスを設定
+services:
+  db:
+    image: mysql:8.0
+    # 認証形式に関する設定
+    command: --default-authentication-plugin=mysql_native_password
+    # local,dockerのデータを動機
+    # コンテナ作り直してもデータを引き継げる
+    volumes:
+      - db-volume:/var/lib/mysql
+    # 環境変数設定
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+  web:
+    # 同じディレクトリのDokcerfileを参照
+    build: .
+    # railsを起動
+    command: bundle exec rails s -p 3000 -b '0.0.0.0'
+    # ファイル共有:local-dokcerを動機
+    volumes:
+      - ./src:/app
+    ports:
+      - "3001:3000"
+    # 接続先ホストのipをweb=>dbの接続ができる
+    depends_on:
+      - db
