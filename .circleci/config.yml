@@ -6,26 +6,19 @@ orbs:
   # heroku: circleci/heroku@1.2.3
 
 jobs:
-  # rubyのbundle installしている
   build:
     docker:
       - image: circleci/ruby:2.7
-    # gitのリポジトリと同じ名前にする
     working_directory: ~/rails-docker-kyt20223027/src
-    # 実際のジョブの中身
     steps:
       - checkout:
-          # gitのリポジトリと同じ名前にする 
           path: ~/rails-docker-kyt20223027
-        # installのコマンド、orbsが提供している 
       - ruby/install-deps
 
   test:
-    # circleciの実行環境
     docker:
       - image: circleci/ruby:2.7
       - image: circleci/mysql:5.5
-        # 環境変数はdatabase.ymlの設定に合わせる
         environment:
           MYSQL_ROOT_PASSWORD: password
           MYSQL_DATABASE: app_test
@@ -33,14 +26,11 @@ jobs:
     environment:
       BUNDLE_JOBS: "3"
       BUNDLE_RETRY: "3"
-      # 自分のPCをさす
       APP_DATABASE_HOST: "127.0.0.1"
       RAILS_ENV: test
-    # gitのリポジトリと同じ名前にする 
     working_directory: ~/rails-docker-kyt20223027/src
     steps:
       - checkout:
-          # gitのリポジトリと同じ名前にする 
           path: ~/rails-docker-kyt20223027
       - ruby/install-deps
       - run:
@@ -78,7 +68,6 @@ workflows:
     jobs:
       - build
       - test:
-      # testのためにはbuildが必要（buildが先）と定義
           requires:
             - build
       # - deploy:
