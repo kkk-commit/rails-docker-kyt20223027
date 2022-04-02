@@ -3,7 +3,7 @@ version: 2.1
 # ジョブを事前に定義してシェアできる記法
 orbs:
   ruby: circleci/ruby@1.1.2
-  # heroku: circleci/heroku@1.2.3
+  heroku: circleci/heroku@1.2.3
 
 jobs:
   build:
@@ -40,26 +40,26 @@ jobs:
           name: test
           command: bundle exec rake test
 
-  # deploy:
-  #   docker:
-  #     - image: circleci/ruby:2.7
-  #   steps:
-  #     - checkout
-  #     - setup_remote_docker:
-  #         version: 19.03.13
-  #     - heroku/install
-  #     - run:
-  #         name: heroku login
-  #         command: heroku container:login
-  #     - run:
-  #         name: push docker image
-  #         command: heroku container:push web -a $HEROKU_APP_NAME
-  #     - run:
-  #         name: release docker image
-  #         command: heroku container:release web -a $HEROKU_APP_NAME
-  #     - run:
-  #         name: database setup
-  #         command: heroku run bundle exec rake db:migrate RAILS_ENV=production -a $HEROKU_APP_NAME
+  deploy:
+    docker:
+      - image: cimg/ruby:2.7
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+      - heroku/install
+      - run:
+          name: heroku login
+          command: heroku container:login
+      - run:
+          name: push docker image
+          command: heroku container:push web -a $HEROKU_APP_NAME
+      - run:
+          name: release docker image
+          command: heroku container:release web -a $HEROKU_APP_NAME
+      - run:
+          name: database setup
+          command: heroku run bundle exec rake db:migrate RAILS_ENV=production -a $HEROKU_APP_NAME
 
 # ジョブの順番を定義
 workflows:
@@ -70,9 +70,9 @@ workflows:
       - test:
           requires:
             - build
-      # - deploy:
-      #     requires:
-      #       - test
-      #     filters:
-      #       branches:
-      #         only: main
+      - deploy:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
